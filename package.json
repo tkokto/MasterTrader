@@ -12,7 +12,8 @@
     "@klinecharts/pro": "^0.1.1",
     "element-plus": "^2.10.5",
     "klinecharts": "^9.8.12",
-    "vue": "^3.5.17"
+    "vue": "^3.5.17",
+    "yahoo-finance2": "^2.13.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",

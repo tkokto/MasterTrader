@@ -5,6 +5,8 @@
       <KLineChart 
         ref="chartRef"
         :symbol="currentSymbol"
+        @stock-changed="handleStockChange"
+        @price-changed="handlePriceChange"
       />
     </div>
     
@@ -46,26 +48,6 @@
         <!-- 展开模式内容 -->
         <div v-if="!isCollapsed" class="transition-all duration-300">
           <div class="p-8 space-y-8">
-            <!-- 股票选择 -->
-            <div>
-              <h3 class="text-white font-semibold mb-4 text-base">股票选择</h3>
-              <el-select 
-                v-model="currentSymbol" 
-                placeholder="选择股票"
-                class="w-full"
-                size="large"
-                @change="handleSymbolChange"
-              >
-                <el-option
-                  v-for="stock in stockOptions"
-                  :key="stock.value"
-                  :label="stock.label"
-                  :value="stock.value"
-                >
-                </el-option>
-              </el-select>
-            </div>
-
             <!-- 资金信息 -->
             <div>
               <h3 class="text-white font-semibold mb-4 text-base">账户信息</h3>
@@ -218,7 +200,7 @@ const availableFunds = ref(100000) // 可用资金
 const position = ref(0) // 持仓数量
 const averageCost = ref(0) // 平均成本
 const buyRatio = ref(0.25) // 买入比例
-const currentSymbol = ref('AAPL') // 当前股票代码
+const currentSymbol = ref('000001.SS') // 当前股票代码，默认为上证指数
 const chartRef = ref<InstanceType<typeof KLineChart>>()
 
 // 面板状态
@@ -243,14 +225,6 @@ const pnl = computed(() => {
   return 0
 })
 
-// 股票代码选项
-const stockOptions = [
-  { value: 'AAPL', label: '苹果 (AAPL)' },
-  { value: 'GOOGL', label: '谷歌 (GOOGL)' },
-  { value: 'MSFT', label: '微软 (MSFT)' },
-  { value: 'TSLA', label: '特斯拉 (TSLA)' },
-  { value: 'AMZN', label: '亚马逊 (AMZN)' },
-]
 
 // 面板折叠切换
 const toggleCollapse = () => {
@@ -291,17 +265,6 @@ const stopDrag = () => {
   document.removeEventListener('mouseup', stopDrag)
 }
 
-// 更换股票
-const handleSymbolChange = (symbol: string) => {
-  currentSymbol.value = symbol
-  if (chartRef.value) {
-    chartRef.value.changeSymbol(symbol)
-  }
-  // 重置交易数据
-  position.value = 0
-  averageCost.value = 0
-  availableFunds.value = totalFunds.value
-}
 
 // 设置买入比例
 const setBuyRatio = (ratio: number) => {
@@ -342,6 +305,21 @@ const handleSell = () => {
   
   position.value = 0
   averageCost.value = 0
+}
+
+// 监听股票变化事件
+const handleStockChange = (symbol: string, name: string) => {
+  currentSymbol.value = `${symbol} (${name})`
+  // 重置交易数据
+  position.value = 0
+  averageCost.value = 0
+  availableFunds.value = totalFunds.value
+}
+
+// 监听价格变化事件
+const handlePriceChange = (price: number) => {
+  currentPrice.value = price
+  console.log(`交易面板接收到价格更新: ${price}`)
 }
 
 // 组件挂载时初始化面板位置
